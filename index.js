@@ -23,7 +23,8 @@ const allowedOrigins = [
   // "https://mahendra-ke-namkeen-six.vercel.app",
   "https://mnk-2025.vercel.app",
   "https://sprightly-baklava-2d3c9b.netlify.app",
-  "http://localhost:5173"
+  "http://localhost:5173",
+  "https://crockery-e-com-dashboard.netlify.app"
 ];
 
 // Increase payload size limit
