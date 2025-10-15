@@ -1,51 +1,60 @@
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+
+dotenv.config(); // Load environment variables from .env
 
 const otpStore = new Map(); // Temporary store for OTPs (use Redis/DB for production)
 
+// Send OTP Controller
 export const otpController = async (req, res) => {
   try {
     const { email } = req.body;
-    if (email) {
-      // Generate a 6-digit OTP
-      const otp = Math.floor(100000 + Math.random() * 900000);
-      const expiresAt = new Date(Date.now() + 2 * 60 * 1000); // OTP valid for 10 minutes
 
-      // Save OTP and expiration in the temporary store
-      otpStore.set(email, { otp: otp.toString(), expiresAt });
-
-      // Create Nodemailer transporter
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        secure: true,
-        port: 465,
-        auth: {
-          user: "expensetracker1908@gmail.com",
-          pass: "dtjhnxsreewiyxps",
-        },
-      });
-
-      // Email content
-      const mailOptions = {
-        from: '"mahendra Namkin" <expensetracker1908@gmail.com>', // Replace with your sender email
-        to: email,
-        subject: "mahendra Namkin OTP Code",
-        html: `
-      <div style="font-family: Arial, sans-serif; text-align: center;">
-        <h2>Your OTP Code is : </h2>
-         <h1 style="font-size: 36px; font-weight: bold; color: #4CAF50;">${otp}</h1>
-        <p>Please use the following OTP to complete your process. This code is valid for 2 minutes.</p>
-      </div>
-    `,
-      };
-
-      console.log(email);
-      // Send email
-      await transporter.sendMail(mailOptions);
-
-      res.status(200).json({ message: "OTP sent successfully!", otp }); // Remove `otp` in production
-      console.log("otp sent successfully");
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
     }
+
+    // Generate a 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    const expiresAt = new Date(Date.now() + 2 * 60 * 1000); // OTP valid for 2 minutes
+
+    // Save OTP and expiration in the temporary store
+    otpStore.set(email.toLowerCase(), { otp: otp.toString(), expiresAt });
+
+    // Create Nodemailer transporter using env variables
+    const transporter = nodemailer.createTransport({
+      host: process.env.MAIL_HOST,
+      port: Number(process.env.MAIL_PORT),
+      secure: true,
+      auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS,
+      },
+    });
+
+    // Email content
+    const mailOptions = {
+      from: `"Mahendra Namkin" <${process.env.MAIL_FROM}>`,
+      to: email,
+      subject: "Mahendra Namkin OTP Code",
+      html: `
+        <div style="font-family: Arial, sans-serif; text-align: center;">
+          <h2>Your OTP Code is:</h2>
+          <h1 style="font-size: 36px; font-weight: bold; color: #4CAF50;">${otp}</h1>
+          <p>Please use the following OTP to complete your process. This code is valid for 2 minutes.</p>
+        </div>
+      `,
+    };
+
+    console.log("Sending OTP to:", email);
+
+    // Send email
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: "OTP sent successfully!", otp }); // ⚠️ Remove otp from response in production
+    console.log("OTP sent successfully");
   } catch (error) {
+    console.error("Error sending OTP:", error);
     res
       .status(500)
       .json({ message: "Error sending OTP!", error: error.message });
@@ -62,7 +71,6 @@ export const verifyOtp = (req, res) => {
       return res.status(400).json({ message: "Email and OTP are required" });
     }
 
-    // const storedOtpData = otpStore.get(email);
     const normalizedEmail = email.trim().toLowerCase();
     const storedOtpData = otpStore.get(normalizedEmail);
 
@@ -72,18 +80,17 @@ export const verifyOtp = (req, res) => {
 
     const { otp: storedOtp, expiresAt } = storedOtpData;
 
-    // Validate OTP and expiration
     if (storedOtp !== otp) {
       return res.status(400).json({ message: "Invalid OTP" });
     }
 
     if (new Date() > expiresAt) {
-      otpStore.delete(email); // Clean up expired OTP
+      otpStore.delete(normalizedEmail);
       return res.status(400).json({ message: "OTP has expired" });
     }
 
-    // OTP verified successfully
-    otpStore.delete(email); // Optional: Remove OTP after successful verification
+    // OTP verified
+    otpStore.delete(normalizedEmail);
     res.status(200).json({ message: "OTP verified successfully" });
   } catch (error) {
     console.error("Error verifying OTP:", error);
