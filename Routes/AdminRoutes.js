@@ -19,7 +19,7 @@ router.put("/:id", updateAdmin); // Update Admin
 router.post("/send-otp", otpController);
 router.post("/verify-otp", verifyOtp);
 
-router.get("/me", getCurrentAdmin);
+router.get("/me", adminAuth, getCurrentAdmin);
 router.post("/logout", Adminlogout);
 
 export default router;
