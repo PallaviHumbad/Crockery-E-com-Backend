@@ -54,25 +54,15 @@ export const loginAdmin = async (req, res) => {
     );
     console.log(token);
 
-    // res.cookie("token", token, {
-    //   httpOnly: true,
-    //   maxAge: 24 * 60 * 60 * 1000,
-    // });
-
-    const isProduction = process.env.NODE_ENV === "production";
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "None" : "Lax",
-      maxAge: 24 * 60 * 60 * 1000,
-    });
-
-
+    // Return token in response body instead of setting cookie
     res.status(200).json({
       message: "Login successful",
       adminId: admin._id,
       token,
+      admin: {
+        id: admin._id,
+        email: admin.email
+      }
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -122,6 +112,6 @@ export const getCurrentAdmin = async (req, res) => {
 
 // Logout
 export const Adminlogout = (req, res) => {
-  res.clearCookie("token");
+  // Since we're using localStorage, we don't need to clear cookies
   res.json({ message: "Logged out successfully" });
 };

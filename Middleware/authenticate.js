@@ -1,9 +1,14 @@
 import jwt from "jsonwebtoken";
 
 const authenticate = (req, res, next) => {
-  const token = req.cookies.token; // Extract token from cookie
+  // Extract token from Authorization header
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.startsWith('Bearer ') 
+    ? authHeader.substring(7) 
+    : null;
 
-  console.log(token);
+  console.log("Token from Authorization header:", token);
+  
   if (!token) {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }

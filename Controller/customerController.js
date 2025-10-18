@@ -125,17 +125,13 @@ export const createCustomer = async (req, res) => {
           expiresIn: "7d", // Changed from "1d" to "7d"
         });
 
-        // Set the token in an httpOnly cookie
-        res.cookie("token", token, {
-          httpOnly: true, // Prevents client-side JS access
-          secure: process.env.NODE_ENV === "production", // Secure in production (HTTPS)
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-        });
+        // Return token in response body instead of setting cookie
       }
 
       res.status(201).json({
         message: "Customer created successfully",
         customer: newCustomer,
+        token,
       });
     } else {
       return res
@@ -342,13 +338,7 @@ export const loginCustomer = async (req, res) => {
     });
 
     console.log(token);
-    // Set the token in an httpOnly cookie
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    // Return token in response body instead of setting cookie
 
     res.status(200).json({
       message: "Login successful",
@@ -385,6 +375,6 @@ export const auth = async (req, res) => {
 
 // Logout
 export const logout = (req, res) => {
-  res.clearCookie("token");
+  // Since we're using localStorage, we don't need to clear cookies
   res.json({ message: "Logged out successfully" });
 };
