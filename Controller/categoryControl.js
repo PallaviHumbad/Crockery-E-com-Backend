@@ -9,6 +9,12 @@ export const createCategory = async (req, res) => {
       return res.status(400).json({ message: "Category name is required" });
     }
 
+    if (!subCategories || subCategories.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "At least one subcategory is required" });
+    }
+
     const existing = await Category.findOne({ name });
     if (existing) {
       return res.status(400).json({ message: "Category already exists" });
@@ -55,10 +61,15 @@ export const getCategoryById = async (req, res) => {
 export const updateCategory = async (req, res) => {
   try {
     const { name, subCategories } = req.body;
+    if (!subCategories || subCategories.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "At least one subcategory is required" });
+    }
     const category = await Category.findByIdAndUpdate(
       req.params.id,
       { name, subCategories },
-      { new: true }
+      { new: true, runValidators: true }
     );
 
     if (!category) {

@@ -8,7 +8,6 @@ const subCategorySchema = new mongoose.Schema({
   },
   label: {
     type: String,
-    required: true,
     trim: true,
   },
 });
@@ -21,7 +20,16 @@ const categorySchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
-    subCategories: [subCategorySchema],
+    subCategories: {
+      type: [subCategorySchema],
+      required: true,
+      validate: {
+        validator: function (v) {
+          return v && v.length > 0;
+        },
+        message: "At least one subcategory is required",
+      },
+    },
   },
   { timestamps: true }
 );
