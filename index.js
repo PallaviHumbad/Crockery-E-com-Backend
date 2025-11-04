@@ -8,12 +8,12 @@ import customerRoute from "./Routes/customerRoutes.js";
 import productRoutes from "./Routes/productRoutes.js";
 import otpRoutes from "./Routes/customerOtpRoutes.js";
 import customerOrderRouter from "./Routes/customerOrderRoutes.js";
-import CategoryRouter from "./Routes/categoryRoutes.js";
 import customerCartWishlistRoutes from "./CustomerRoutes/customerWishlistCartRoutes.js";
 import distributorRoutes from "./CustomerRoutes/distributorRoutes.js";
 import inquiryRoutes from "./CustomerRoutes/customerInquiryRoutes.js";
 import adminCustomerRoutes from "./Routes/adminCustomerRoutes.js";
 import razorpayRoutes from "./Routes/razorpayRoutes.js";
+import CategoryRoute from "./Routes/categoryRoute.js";
 
 dotenv.config();
 database();
@@ -24,7 +24,7 @@ const allowedOrigins = [
   "https://mnk-2025.vercel.app",
   "https://sprightly-baklava-2d3c9b.netlify.app",
   "http://localhost:5173",
-  "https://crockery-e-com-dashboard.netlify.app"
+  "https://crockery-e-com-dashboard.netlify.app",
 ];
 
 // Increase payload size limit
@@ -40,14 +40,14 @@ app.use(
   })
 );
 
+app.use("/api/category", CategoryRoute);
+
 // Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/customers", customerRoute);
 // Routes
 app.use("/api/products", productRoutes);
 app.use("/api/customer-orders", customerOrderRouter);
-app.use("/api/category", CategoryRouter);
-// Use the admin routes under the /api/admin prefix
 app.use("/api/admin", adminCustomerRoutes);
 //customer otp send/recirve
 app.use("/api/customer-otp", otpRoutes);
