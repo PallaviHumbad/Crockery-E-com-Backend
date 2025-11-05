@@ -25,6 +25,7 @@ const allowedOrigins = [
   "https://sprightly-baklava-2d3c9b.netlify.app",
   "http://localhost:5173",
   "https://crockery-e-com-dashboard.netlify.app",
+  "http://localhost:3000",
 ];
 
 // Increase payload size limit
