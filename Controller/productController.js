@@ -1,7 +1,7 @@
 import Product from "../Models/productModel.js";
 import Category from "../Models/Category.js";
 
-// ✅ Create Product
+// Create Product
 export const createProduct = async (req, res) => {
   try {
     const {
@@ -12,6 +12,9 @@ export const createProduct = async (req, res) => {
       productImages,
       categoryId,
       subCategoryId,
+      isActive = true,
+      bestSeller = false,
+      hideProduct = false,
     } = req.body;
 
     if (
@@ -44,6 +47,9 @@ export const createProduct = async (req, res) => {
       productImages,
       category: categoryId,
       subCategoryId,
+      isActive,
+      bestSeller,
+      hideProduct,
     });
 
     await product.save();
@@ -53,10 +59,9 @@ export const createProduct = async (req, res) => {
   }
 };
 
-// ✅ Get All Products
+// Get All Products
 export const getAllProducts = async (req, res) => {
   try {
-    // Populate category and match subCategoryId manually
     const products = await Product.find().populate("category");
     res.status(200).json(products);
   } catch (error) {
@@ -64,13 +69,99 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
-// ✅ Get Product by ID (with Category + SubCategory info)
+// Get Active Products Only
+export const getActiveProducts = async (req, res) => {
+  try {
+    const products = await Product.find({
+      isActive: true,
+      hideProduct: false,
+    }).populate("category");
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get Best Seller Products
+export const getBestSellerProducts = async (req, res) => {
+  try {
+    const products = await Product.find({
+      bestSeller: true,
+      isActive: true,
+      hideProduct: false,
+    }).populate("category");
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Toggle Product Active Status
+export const toggleProductStatus = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    product.isActive = !product.isActive;
+    await product.save();
+
+    res.status(200).json({
+      message: `Product ${
+        product.isActive ? "activated" : "deactivated"
+      } successfully`,
+      product,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Toggle Best Seller Status
+export const toggleBestSeller = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    product.bestSeller = !product.bestSeller;
+    await product.save();
+
+    res.status(200).json({
+      message: `Product ${
+        product.bestSeller ? "added to" : "removed from"
+      } best sellers`,
+      product,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Toggle Hide Product
+export const toggleHideProduct = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    product.hideProduct = !product.hideProduct;
+    await product.save();
+
+    res.status(200).json({
+      message: `Product ${
+        product.hideProduct ? "hidden" : "visible"
+      } successfully`,
+      product,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get Product by ID
 export const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).populate("category");
     if (!product) return res.status(404).json({ message: "Product not found" });
 
-    // Attach full subCategory info
     const category = await Category.findById(product.category);
     const subCategory = category?.subCategories.id(product.subCategoryId);
 
@@ -83,7 +174,7 @@ export const getProductById = async (req, res) => {
   }
 };
 
-// ✅ Update Product
+// Update Product
 export const updateProduct = async (req, res) => {
   try {
     const {
@@ -94,6 +185,9 @@ export const updateProduct = async (req, res) => {
       productImages,
       categoryId,
       subCategoryId,
+      isActive,
+      bestSeller,
+      hideProduct,
     } = req.body;
 
     const product = await Product.findById(req.params.id);
@@ -117,6 +211,9 @@ export const updateProduct = async (req, res) => {
         productImages,
         category: categoryId,
         subCategoryId,
+        isActive,
+        bestSeller,
+        hideProduct,
       },
       { new: true }
     );
@@ -130,7 +227,7 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-// ✅ Delete Product
+// Delete Product
 export const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
