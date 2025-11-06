@@ -30,12 +30,8 @@ const CustomerOrderSchema = new mongoose.Schema(
           ref: "Product",
           required: true,
         },
-        variant: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Product.variants",
-          required: true,
-        },
-        quantity: { type: String, required: true },
+        quantity: { type: Number, required: true, min: 1 },
+        price: { type: Number, required: true }, // Store price at order time
       },
     ],
     shippingMethod: {
@@ -57,17 +53,18 @@ const CustomerOrderSchema = new mongoose.Schema(
     },
     additionalCharges: [
       {
-        packagingCharge: { type: String, default: "0" },
-        shippingCharge: { type: String, default: "0" },
+        packagingCharge: { type: Number, default: 0 },
+        shippingCharge: { type: Number, default: 0 },
       },
     ],
-    paymentTotal: { type: String, required: true },
+    paymentTotal: { type: Number, required: true },
     orderNote: { type: String, default: "" },
-    discount: { type: String, default: "0" },
+    discount: { type: Number, default: 0 },
     cancellationReason: { type: String, default: "" },
   },
   { timestamps: true }
 );
+
 const CustomerOrder =
   mongoose.models.CustomerOrder ||
   mongoose.model("CustomerOrder", CustomerOrderSchema);
