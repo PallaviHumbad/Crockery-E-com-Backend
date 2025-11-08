@@ -14,6 +14,7 @@ import inquiryRoutes from "./CustomerRoutes/customerInquiryRoutes.js";
 import adminCustomerRoutes from "./Routes/adminCustomerRoutes.js";
 import razorpayRoutes from "./Routes/razorpayRoutes.js";
 import CategoryRoute from "./Routes/categoryRoute.js";
+import UserPanelRoutes from "./Routes/userPanelRoutes.js";
 
 dotenv.config();
 database();
@@ -42,7 +43,7 @@ app.use(
 );
 
 app.use("/api/category", CategoryRoute);
-
+app.use("/api/user-panel", UserPanelRoutes);
 // Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/customers", customerRoute);
