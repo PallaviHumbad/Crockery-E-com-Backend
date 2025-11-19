@@ -2,7 +2,6 @@ import Admin from "../Models/AdminModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// Create Admin
 export const createAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -61,8 +60,8 @@ export const loginAdmin = async (req, res) => {
       token,
       admin: {
         id: admin._id,
-        email: admin.email
-      }
+        email: admin.email,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
